@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-loadbalancer-lbaas
+spec:
+  type: LoadBalancer
+  externalTrafficPolicy: Local
+  selector:
+    app: myapp
+  ports:
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 80

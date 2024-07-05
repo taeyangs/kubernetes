@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-loadbalancer-externalip
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+  selector:
+    app: myweb
+  externalIPs:
+  - 10.0.0.66
