@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-nginx
+spec:
+  volumes:
+    - name: volume-nginx
+      persistentVolumeClaim:
+        claimName: pvc-test
+  containers:
+    - name: pvc-nginx-container
+      image: wangxiaochun/nginx:1.20.0
+      volumeMounts:
+      - name: volume-nginx
+        mountPath: "/usr/share/nginx/html"

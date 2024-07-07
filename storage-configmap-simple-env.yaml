@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-nginx-config
+data:
+  port: "10086"
+  user: "www"
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: configmap-env-test
+spec:
+  containers:
+  - name: configmap-env-test
+    image: wangxiaochun/nginx:1.20.0
+    env:
+    - name: NGINX_HOST
+      value: "10.0.0.100"
+    - name: NGINX_PORT
+      valueFrom:
+        configMapKeyRef:
+          name: cm-nginx-config
+          key: port
+          optional: true
+    - name: NGINX_USER
+      valueFrom:
+        configMapKeyRef:
+          name: cm-nginx-config
+          key: user
+          optional: false

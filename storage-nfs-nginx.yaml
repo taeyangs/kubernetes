@@ -1,0 +1,36 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: storage
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name : nginx-nfs
+  namespace: storage
+  labels:
+    app: nginx-nfs
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx-nfs
+  template:
+    metadata:
+      labels :
+        app: nginx-nfs
+    spec:
+      volumes:
+      - name: html
+        nfs:
+          server: nfs.wang.org
+          path: /nfs-data/nginx
+      containers:
+      - image: wangxiaochun/nginx:1.20.0
+        name: nginx
+        volumeMounts:
+        - name: html
+          mountPath: /usr/share/nginx/html
+

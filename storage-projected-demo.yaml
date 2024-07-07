@@ -1,0 +1,53 @@
+apiVersion: v1
+data:
+  username: d2FuZ3hpYW9jaHVu
+kind: Secret
+metadata:
+  name: mysecret
+  namespace: default
+type: Opaque
+
+---
+apiVersion: v1
+data:
+  myconfig: Hello,Myconfig
+kind: ConfigMap
+metadata:
+  name: myconfigmap
+  namespace: default
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: projected-volume-demo
+spec:
+  containers:
+  - name: container-test
+    image: wangxiaochun/pod-test:v0.1
+    volumeMounts:
+    - name: all-in-one
+      mountPath: "/projected-volume"
+      readOnly: true
+  volumes:
+  - name: all-in-one
+    projected:
+      sources:
+      - secret:
+          name: mysecret
+          items:
+            - key: username
+              path: my-group/my-username
+      - downwardAPI:
+          items:
+            - path: "labels"
+              fieldRef:
+                fieldPath: metadata.labels
+            - path: "cpu_limit"
+              resourceFieldRef:
+                containerName: container-test
+                resource: limits.cpu
+      - configMap:
+          name: myconfigmap
+          items:
+            - key: myconfig
+              path: my-group/my-config

@@ -1,0 +1,61 @@
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: local-storage
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer
+
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-sc-local
+spec:
+  capacity:
+    storage: 100Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Delete
+  storageClassName: local-storage
+  local:
+    path: /data/www/
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - node2.wang.org
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-sc-local
+spec:
+  storageClassName: local-storage
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 100Mi
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-sc-local-demo
+spec:
+  containers:
+  - name: pod-sc-local-demo
+    image: wangxiaochun/nginx:1.20.0
+    volumeMounts:
+      - name: pvc-sc-local
+        mountPath: "/usr/share/nginx/html/"
+  restartPolicy: "Never"
+  volumes:
+    - name: pvc-sc-local
+      persistentVolumeClaim:
+        claimName: pvc-sc-local

@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-cm-nginx-conf
+spec:
+  volumes:
+  - name: volume-nginx-conf
+    configMap:
+      name: cm-nginx-conf
+      items:
+      - key: nginx.conf
+        path: etc/nginx/nginx.conf
+  containers:
+  - image: wangxiaochun/nginx:1.20.0
+    name: pod-cm-nginx-conf-container
+    command: ["sh","-c","sleep 3600"]
+    volumeMounts:
+    - name: volume-nginx-conf
+      mountPath: /etc/nginx/nginx.conf
+      subPath: etc/nginx/nginx.conf

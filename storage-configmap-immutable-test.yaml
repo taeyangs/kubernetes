@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-immutable-test
+data:
+  author: wangxiaochun
+  file.conf: |
+    [class]
+    linux
+    go
+    java
+immutable: true

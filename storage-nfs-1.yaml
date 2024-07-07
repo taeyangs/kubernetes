@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: volumes-nfs-1
+spec:
+  nodeName: node1.wang.org
+  volumes:
+    - name: redisdatapath
+      nfs:
+        server: nfs.wang.org
+        path: /data/sc-nfs
+  containers:
+  - name: redis
+    image: redis:5.0.0
+    volumeMounts:
+    - mountPath: /data
+      name: redisdatapath

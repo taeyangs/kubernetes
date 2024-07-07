@@ -1,0 +1,58 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv001
+spec:
+  nfs:
+    path: /nfs-data/v1
+    server: nfs.wang.org
+  accessModes: ["ReadWriteOnce"]
+  capacity:
+    storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv002
+spec:
+  nfs:
+    path: /nfs-data/v2
+    server: nfs.wang.org
+  accessModes: ["ReadWriteOnce"]
+  capacity:
+    storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv003
+spec:
+  nfs:
+    path: /nfs-data/v3
+    server: nfs.wang.org
+  accessModes: ["ReadWriteOnce"]
+  capacity:
+    storage: 2Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv004
+spec:
+  nfs:
+    path: /nfs-data/v4
+    server: nfs.wang.org
+  accessModes: ["ReadWriteOnce"]
+  capacity:
+    storage: 2Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: statefulset-headless
+spec:
+  ports: 
+  - port: 80
+  clusterIP: None
+  selector:
+    app: myapp-pod

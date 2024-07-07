@@ -1,0 +1,96 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis
+spec:
+  serviceName: redis
+  replicas: 3
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9121"
+        prometheus.io/path: "/metrics"
+        # Grafana Dashboard ID: 763
+    spec:
+      initContainers:
+      - name: config
+        image: redis:7.2
+        env:
+          - name: REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: redis-secret
+                key: REDIS_PASSWORD
+        command: [ "sh", "-c", "/scripts/redis_init.sh" ]
+        volumeMounts:
+        - name: redis-config
+          mountPath: /etc/redis/
+        - name: config
+          mountPath: /tmp/redis/
+        - name: init-script
+          mountPath: /scripts/
+      containers:
+      - name: redis
+        image: redis:7.2
+        command: ["redis-server"]
+        args: ["/etc/redis/redis.conf"]
+        ports:
+        - containerPort: 6379
+          name: redis
+        volumeMounts:
+        - name: data
+          mountPath: /data
+        - name: redis-config
+          mountPath: /etc/redis/
+      - name: redis-exporter
+        image: oliver006/redis_exporter:v1.55.0-alpine  
+        env:
+          - name: REDIS_ADDR
+            value: "redis://localhost:6379"
+          - name: REDIS_USER
+            value: "default"
+          - name: REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: redis-secret
+                key: REDIS_PASSWORD
+        ports:
+        - name: redis-exporter
+          containerPort: 9121
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: data
+      - name: redis-config
+        emptyDir: {}
+      - name: init-script
+        configMap:
+          name: sentinel-scripts
+          defaultMode: 0777
+          items:
+          - key: redis_init.sh
+            path: redis_init.sh
+      - name: config
+        configMap:
+          name: redis-conf
+          items:
+          - key: redis.conf
+            path: redis.conf
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+      labels:
+        app: redis
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: sc-nfs
+      resources:
+        requests:
+          storage: 10Gi

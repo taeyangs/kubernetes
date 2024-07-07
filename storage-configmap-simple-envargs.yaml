@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-command-arg
+data:
+  time: "3600"
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-cm-command-arg
+spec:
+  containers:
+    - name: pod-cm-command-arg-contrainer
+      image: busybox:1.32.0
+      command: [ "/bin/sh", "-c", "sleep ${SPECIAL_TIME}" ]
+      env:
+      - name: SPECIAL_TIME
+        valueFrom:
+          configMapKeyRef:
+            name: cm-command-arg
+            key: time
+  restartPolicy: Never

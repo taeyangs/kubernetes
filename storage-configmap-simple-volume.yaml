@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cm-volume
+data:
+  author: wangxiaochun
+  file.conf: |
+    [app]
+    config1
+    config2
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-volume-test
+spec:
+  volumes:
+    - name: volume-config
+      configMap:
+        name: cm-volume 
+  containers:
+    - name: nginx
+      image: wangxiaochun/nginx:1.20.0
+      volumeMounts:
+      - name: volume-config
+        mountPath: /cmap/
